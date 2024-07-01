@@ -3,6 +3,11 @@ import bcrypt from 'bcryptjs';
 
 import User from '../../models/User.js';
 import Tag from '../../models/Tag.js';
+import Faq from '../../models/Faq.js';
+import ExploreMeal from '../../models/ExploreMeal.js';
+import GutSurveyQuestion from '../../models/GutSurveyQuestion.js';
+import Meal from '../../models/Meal.js';
+import MealPreferenceQuestion from '../../models/MealPreferenceQuestion.js';
 
 import ApiResponse from '../../services/ApiResponse.js';
 
@@ -64,11 +69,55 @@ const allTags = async (req, res) => {
     }
 }
 
+const removeTag = async (req, res) => {
+    const tagId = req.params.tagId;
+    if (!tagId) return ApiResponse(res, 400, "Please enter tagId");
+  
+    try {
+      let tag = await Tag.deleteOne({ _id: tagId });
+      if (tag.acknowledged == true) {
+        return ApiResponse(res, 201, "Tag deleted");
+      } else {
+        return ApiResponse(res, 500, "Tag not deleted");
+      }
+    } catch (err) {
+      return ApiResponse(res, 500, "Something went wrong");
+    }
+};
+
+const dashboard = async (req, res) => {
+    try {
+      // Your code to count the length of each model goes here...
+      const mealsCount = await Meal.countDocuments();
+      const mealPreferenceQuestionsCount =
+        await MealPreferenceQuestion.countDocuments();
+      const tagsCount = await Tag.countDocuments();
+      const faqsCount = await Faq.countDocuments();
+      const exploreMealsCount = await ExploreMeal.countDocuments();
+      const gutSurveyQuestionsCount = await GutSurveyQuestion.countDocuments();
+      // Example usage of ApiResponse function
+      return ApiResponse(res, 200, "Success", {
+        mealsCount,
+        mealPreferenceQuestionsCount,
+        tagsCount,
+        faqsCount,
+        exploreMealsCount,
+        gutSurveyQuestionsCount,
+      });
+    } catch (error) {
+      console.error("Error:", error);
+      return ApiResponse(res, 500, "Internal server error");
+    }
+  };
+  
+
 const admin = {
     login,
-
     addTag,
-    allTags
+    allTags,
+    removeTag,
+    dashboard,
+
 };
 
 export default admin;

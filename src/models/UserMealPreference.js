@@ -10,24 +10,25 @@ const UserMealPreferenceSchema = new Schema({
     valueSelected: {
         type: [
             {
+                subQuestionExist: {
+                    type: mongoose.Schema.Types.Mixed,
+                    required: true
+                },
                 questionId: {
                     type:Schema.Types.ObjectId,
-                    ref: "MealPreferenceQuestion",
+                    ref: "MealPreferenceQuestion"
                 },
                 options: {
                     type: Array,
                 },
-                recommendations: [{
-                    type: Schema.Types.ObjectId,
-                    ref: "Meal"
-                }]
             }
         ],
     },
     userRecommendations: [
         {
             type: Schema.Types.ObjectId,
-            ref: "Meal"
+            ref: "Meal",
+            required:false
         }
     ]
 }, {

@@ -53,23 +53,37 @@ const UserSchema = new Schema(
       allowNull: true,
     },
     dateofbirth: {
-      type: String,
+      type: Date,
     },
     platform: {
       type: String,
       required: false,
       allowNull: true,
     },
-    nutritionscore: {
-      type: Number,
-    },
-    gutscore: {
-      type: Number,
-    },
-    gutscoreupdatedate: {
-      type: Number,
-      default: 0,
-    },
+    nutritionscore: [
+      {
+        date: {
+          type: Date,
+          required: true
+        },
+        score: {
+          type: Number,
+          default: 0
+        }
+      }
+    ],
+    gutscore: [
+      {
+        date: {
+          type: Date,
+          required: true
+        },
+        score: {
+          type: Number,
+          default: 0
+        }
+      }
+    ],
     biomarker: {
       type: Number,
       default: 0,
@@ -79,6 +93,16 @@ const UserSchema = new Schema(
       required: false,
       default: [],
     },
+    smoker: {
+      type: Number,
+      default: 0,
+      required: true
+    }, 
+    drinker: {
+      type: Number,
+      default: 0,
+      required: true
+    }
   },
   {
     timestamps: true,

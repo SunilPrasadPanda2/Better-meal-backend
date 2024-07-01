@@ -5,13 +5,11 @@ const MealPreferenceQuestionSchema = new Schema(
         questionId: {
             type: Number,
             required: true,
-            allowNull: true,
             unique: true,
         },
         question: {
             type: String,
             required: true,
-            allowNull:false,
             index: true
         },
         options: {
@@ -20,14 +18,13 @@ const MealPreferenceQuestionSchema = new Schema(
                     type: String,
                     required: true,
                 },
-                mealIds: [{
-                    type: Schema.Types.ObjectId,
-                    ref: 'Meal',
-                    required: false
-                }]
             }],
             required: true,
-        }
+        },
+        subQuestions: [{
+            type: Schema.Types.ObjectId,
+            ref: 'MealPreferenceSubQuestion'
+        }]
     }
 );
 

@@ -9,8 +9,7 @@ const UserWeeklyMealSelectionSchema = new Schema({
     },
     weekStartDate: {
         type: Date,
-        required: true,
-        index: true
+        required: true
     },
     recommendations: [
         {
@@ -20,26 +19,24 @@ const UserWeeklyMealSelectionSchema = new Schema({
             },
             meals: {
                 breakfast: [{
-                    mealId: {
-                        type: Schema.Types.ObjectId,
-                        ref: 'Meal',
-                        required: false
-                    },
+                    type: Schema.Types.ObjectId,
+                    ref: 'Meal',
+                    required: false
                 }],
                 lunch: [{
-                    mealId: {
-                        type: Schema.Types.ObjectId,
-                        ref: 'Meal',
-                        required: false
-                    },
+                    type: Schema.Types.ObjectId,
+                    ref: 'Meal',
+                    required: false
                 }],
                 dinner: [{
-                    mealId: {
-                        type: Schema.Types.ObjectId,
-                        ref: 'Meal',
-                        required: false
-                    },
+                    type: Schema.Types.ObjectId,
+                    ref: 'Meal',
+                    required: false
                 }]
+            },
+            nutritionscore: {
+                type: Number,
+                default: 0
             }
         }
     ]

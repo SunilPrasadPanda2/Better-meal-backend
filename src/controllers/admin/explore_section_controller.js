@@ -2,6 +2,7 @@ import Joi from "joi";
 import ExploreMeal from "../../models/ExploreMeal.js";
 import Tag from "../../models/Tag.js";
 
+import { uploadOnCloudinary } from "../../utils/cloudinary.js";
 import ApiResponse from "../../services/ApiResponse.js";
 
 const getSingleExploreSection = async(req, res) => {
@@ -38,7 +39,7 @@ const addForExploreSection = async (req, res) => {
         tags: Joi.string().required(),
         description: Joi.string().required(),
         date: Joi.string().optional()
-    }).options({abortEarly: true});
+    }).options({abortEarly: false});
     const { error, value } = exploreSectionSchema.validate(req.body);
     if (error) 
         return ApiResponse(res, 400, "Validation error", error);
@@ -103,7 +104,7 @@ const editExploreSection = async (req, res) => {
         else return null;
     }));
     const filteredTagsArray = tagsArray.filter(tag => tag !== null);
-
+    const exploreSectionId = value._id;
     try {
         const exploreSectionExists = await ExploreMeal.findById(exploreSectionId);
         if (!exploreSectionExists) return ApiResponse(res, 404, "Item not found");
@@ -137,12 +138,34 @@ const editExploreSection = async (req, res) => {
     }
 }
 
+const removeExplore = async (req, res) => {
+    const ExploreMealSchema = Joi.object({
+      _id: Joi.string().required(),
+    }).options({ abortEarly: false });
+  
+    const { error, value } = ExploreMealSchema.validate(req.body);
+    if (error) return ApiResponse(res, 400, "Validation failed", error);
+  
+    try {
+      const explore = await ExploreMeal.findByIdAndDelete(value._id);
+      if (explore) {
+        return ApiResponse(res, 200, "Explore removed");
+      } else {
+        return ApiResponse(res, 404, "Explore not found");
+      }
+    } catch (err) {
+      return ApiResponse(res, 500, "Internal Server Error", err);
+    }
+};
+  
+
 
 const exploreSection = {
     getSingleExploreSection,
     getAllExploreSection,
     addForExploreSection,
     editExploreSection,
+    removeExplore
 }
 
 export default exploreSection;

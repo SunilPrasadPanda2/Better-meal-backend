@@ -4,7 +4,8 @@ const UserAddedMealSchema = new Schema(
     {
         userInfo: {
             type: Schema.Types.ObjectId,
-            ref: 'User'
+            ref: 'User',
+            required: true
         },
         mealName: {
             type: String,
@@ -21,6 +22,10 @@ const UserAddedMealSchema = new Schema(
             required: true,
             allowNull: false,
         },
+        quantity: {
+            type: String,
+            required: true
+        },
         nutrientsInfo: {
             type: mongoose.Schema.Types.Mixed,
             required: false
@@ -29,6 +34,10 @@ const UserAddedMealSchema = new Schema(
             type: Schema.Types.ObjectId,
             ref: 'Tag'
         }],
+        mealTiming: {
+            type: String,
+            enum: ['breakfast', 'brunch', 'lunch', 'dinner'],
+        },
         rating: {
             type: String,
             required: false,

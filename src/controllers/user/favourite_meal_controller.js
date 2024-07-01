@@ -1,10 +1,12 @@
 import UserFavouriteMeal from "../../models/UserFavouriteMeal.js";
 import ApiResponse from "../../services/ApiResponse.js";
 import Meal from "../../models/Meal.js"
+import UserAddedMeal from "../../models/UserAddedMeal.js";
+import meal from "./meal_controller.js";
 
 const favouriteMeal = async (req, res) => {
     try {
-        const userFavourites = await UserFavouriteMeal.find({}).populate({path: 'mealIds'});
+        const userFavourites = await UserFavouriteMeal.find({userId: req.user._id}).populate({path: 'mealIds'});
         if (userFavourites.length > 0) {
             return ApiResponse(res, 200, "User Favourites Found", userFavourites);
         } else {
@@ -17,7 +19,11 @@ const favouriteMeal = async (req, res) => {
 
 const addFavouriteMeal = async (req, res) => {
     try {
-        const favouriteMeal = await Meal.findOne({ _id: req.body._id });
+        const [mealResult, userAddedMealResult] = await Promise.all([
+            Meal.findOne({ _id: req.body._id }),
+            UserAddedMeal.findOne({ _id: req.body._id, userInfo: req.user._id })
+        ]);
+        const favouriteMeal = mealResult || userAddedMealResult
         if(favouriteMeal) {
             let userMealFavourites = await UserFavouriteMeal.findOne({userId: req.user._id});
             if(userMealFavourites) {
@@ -56,7 +62,11 @@ const addFavouriteMeal = async (req, res) => {
 
 const removeFavouriteMeal = async (req, res) => {
     try {
-        const favouriteMeal = await Meal.findOne({ _id: req.body._id });
+        const [meal, userAddedMeal] = await Promise.all([
+            Meal.findById(req.body._id),
+            UserAddedMeal.findOne({userInfo: req.user._id, _id: req.body._id})
+        ]);
+        const favouriteMeal = meal || userAddedMeal;
         if(favouriteMeal) {
             let userMealFavourites = await UserFavouriteMeal.findOne({userId: req.user._id});
             if(userMealFavourites) {
@@ -81,7 +91,8 @@ const removeFavouriteMeal = async (req, res) => {
             return ApiResponse(res, 404, "Meal not found");
         }
     } catch (err) {
-        return ApiResponse(res, 500, "Internal Server Error", err.message);
+        console.error(err);
+        return ApiResponse(res, 500, "Internal Server Error", err);
     }
 }
 

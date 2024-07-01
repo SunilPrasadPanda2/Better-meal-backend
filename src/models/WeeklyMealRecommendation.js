@@ -1,5 +1,15 @@
 import mongoose, { Schema } from 'mongoose';
 
+const DailyMealRecommendationSchema = new Schema({
+    date: {
+        type: Date,
+        required: true
+    },
+    breakfast: [{ type:Schema.Types.ObjectId, ref: 'Meal' }],
+    lunch: [{ type:Schema.Types.ObjectId, ref: 'Meal' }],
+    dinner: [{ type:Schema.Types.ObjectId, ref: 'Meal' }]
+});
+
 const WeeklyMealRecommendationSchema = new Schema({
     userId: {
         type: Schema.Types.ObjectId,
@@ -12,37 +22,9 @@ const WeeklyMealRecommendationSchema = new Schema({
         required: true,
         index: true
     },
-    recommendations: [
-        {
-            date: {
-                type: Date,
-                required: true
-            }, 
-            meals: {
-                breakfast: [{
-                    mealId: {
-                        type: Schema.Types.ObjectId,
-                        ref: 'Meal',
-                        required: false
-                    },
-                }],
-                lunch: [{
-                    mealId: {
-                        type: Schema.Types.ObjectId,
-                        ref: 'Meal',
-                        required: false
-                    },
-                }],
-                dinner: [{
-                    mealId: {
-                        type: Schema.Types.ObjectId,
-                        ref: 'Meal',
-                        required: false
-                    },
-                }]
-            }
-        }
-    ]
+    recommendations: {
+        type: [DailyMealRecommendationSchema],
+    }
 }, {
     timestamps: true
 });

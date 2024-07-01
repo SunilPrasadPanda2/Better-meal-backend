@@ -1,12 +1,17 @@
 import Joi from "joi";
 import bcrypt from 'bcryptjs';
-import logger from '../../utils/logger.js';
-import { uploadOnCloudinary } from  '../../utils/cloudinary.js';
-import ApiResponse from '../../services/ApiResponse.js';
+import { OAuth2Client } from "google-auth-library";
 
 import User from '../../models/User.js';
 import phoneVerification from '../../models/PhoneVerification.js';
+import ExploreMeal from '../../models/ExploreMeal.js';
+
+import gut from "./gut_controller.js";
+
+import ApiResponse from '../../services/ApiResponse.js';
+import { uploadOnCloudinary } from  '../../utils/cloudinary.js';
  
+const client = new OAuth2Client(process.env.GOOGLE_AUTH_CLIENT_ID);
 
 const sendOtp = async (req, res) => {
     const phonePattern = /^\d{10}$/;
@@ -52,7 +57,7 @@ const phoneVerificationOtp = async (req, res) => {
     } else {
         return res.status(401).json({ message: "otp does not match" });
     }
-}
+};
 
 const signup = async (req, res) => {
     const UserSchema = Joi.object({
@@ -69,20 +74,38 @@ const signup = async (req, res) => {
     }
 
     const isUserExists = await User.findOne({
-        $or: [{ email: req.body.email }, { password: req.body.password }]
+        $or: [{ email: req.body.email }, { mobile: req.body.mobile }]
     });
     if (isUserExists) {
-        return res.status(409).json({ message: "User email" });
+        return res.status(409).json({ message: "User email or phone already exists" });
     }
 
     try {
-        const customer = await User.create(value);
+        const newUser = {
+            name: value.name,
+            email: value.email,
+            mobile: value.mobile,
+            password: value.password,
+            image: "",
+            gender: "",
+            weight: null,
+            height: null,
+            dateofbirth: "",
+            nutritionscore: [],
+            gutscore: [],
+            biomarker: 0,
+            medication: [],
+            smoker: 0,
+            drinker: 0,
+
+        }
+        const customer = await User.create(newUser);
         res.status(201).json({ message: "User created successfully", user: customer });
     } catch (err) {
         res.status(500).json({ message: "Internal server error", error });
     }
 
-}
+};
 
 const login = async (req, res) => {
     const LoginSchema = Joi.object({
@@ -111,7 +134,7 @@ const login = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: "Internal server error", error });
     }
-}
+};
 
 const forgotPassword = async (req, res) => {
     const email = req.body.email;
@@ -120,7 +143,7 @@ const forgotPassword = async (req, res) => {
     if (!emailExists) return res.status(404).json({ message: "User not found" });
     // the password reset should go to email.
     return res.status(200).json({ message: "A link has been sent to your mail Id" });
-}
+};
 
 const updateProfile = async (req, res) => {
     const userSchema = Joi.object({
@@ -128,6 +151,8 @@ const updateProfile = async (req, res) => {
         weight: Joi.string().required(),
         height: Joi.string().required(),
         dateofbirth: Joi.date().required(),
+        smoker: Joi.string().required(),
+        drinker: Joi.string().required()
     });
 
     const { error, value } = userSchema.validate(req.body);
@@ -146,7 +171,7 @@ const updateProfile = async (req, res) => {
         // Include the profile picture URL in the update
         const updatedData = {
             ...value,
-            profilePicture: profilePicture.url  // Assuming the URL is returned from Cloudinary
+            image: profilePicture.url  // Assuming the URL is returned from Cloudinary
         };
 
         const profileUpdate = await User.updateOne(
@@ -154,14 +179,13 @@ const updateProfile = async (req, res) => {
             { $set: updatedData },
             { new: true }
         );
-
         if (profileUpdate.modifiedCount === 0) {
             return res.status(404).json({ message: "No profile was updated. User not found." });
         }
-
+        const something = gut.gutCleansingRecommendation(userId, res);
         return res.status(200).json({ message: "Profile updated successfully", profile: updatedData });
     } catch (e) {
-        return res.status(500).json({ message: "Failed to update profile due to an internal error", error: e.message });
+        return res.status(500).json({ message: "Failed to update profile due to an internal error" });
     }
 };
 
@@ -200,9 +224,41 @@ const changePassword = async (req, res) => {
     } catch (error) {
         return ApiResponse(res, 500, "Something went wrong");
     }
+};
+
+const getDashboardScore = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id).select('nutritionscore smoker drinker gutscore');
+        if (user) 
+            return ApiResponse(res, 200, "user details", user);
+        else 
+            return ApiResponse(res, 500, "Something went wrong");
+    } catch (error) {
+        return ApiResponse(res, 500, "Internal Server Error");
+    }
 }
 
+const exploreSection = async (req, res) => {
+    const sectionSchema = Joi.object({
+        date: Joi.date().required()
+    });
+    const { error, value } = sectionSchema.validate(req.body);
+    if (error) 
+        return ApiResponse(res, 400, "Validation Error", error);
 
+    if (!req.user._id) 
+        return ApiResponse(res, 401, "User not authenticated");
+
+    try {
+        const date = new Date(value.date);
+        const explore = await ExploreMeal.findOne({ date: date}).populate('tags');
+        if (explore)
+            return ApiResponse(res, 200, "Explore Section", explore);
+        return ApiResponse(res, 200, "No explore present today");
+    } catch (error) {
+        return ApiResponse(res, 500, "Internal Server Error");
+    }
+}
 
 const user = {
     login,
@@ -212,6 +268,8 @@ const user = {
     forgotPassword,
     updateProfile,
     changePassword,
+    getDashboardScore,
+    exploreSection,
 };
 
 export default user;

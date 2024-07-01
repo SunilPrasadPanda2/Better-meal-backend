@@ -12,12 +12,11 @@ const DiseaseSchema = new Schema({
     },
     diseaseQuestions: [
         {
-            type:Schema.Types.ObjectId,
-            ref: 'DiseaseBasedQuestion'
+            type: String,
         }
     ]
 });
 
-const Disease = new mongoose.model('Disease', DiseaseSchema);
+const Disease = mongoose.model('Disease', DiseaseSchema);
 
 export default Disease;

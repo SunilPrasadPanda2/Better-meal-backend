@@ -25,8 +25,12 @@ const MealsSchema = new Schema(
             type: mongoose.Schema.Types.Mixed,
             required: false
         },
+        nutritionScore: {
+            type: Number,
+            required: true
+        },
         mealTiming: {
-            type: Array,
+            type: [{ type: String, enum: ['breakfast', 'brunch', 'lunch', 'dinner'] }],
             required: true
         },
         tags: [{
@@ -41,7 +45,7 @@ const MealsSchema = new Schema(
             type:String,
             required: false,
             allowNull:true
-        }
+        },
     }
 );
 

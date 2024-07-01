@@ -83,11 +83,33 @@ const editSurveyQuestion = async (req, res) => {
     }
 }
 
+const removeGutSurveyQuestion = async (req, res) => {
+    const GutSurveyQuestionSchema = Joi.object({
+      _id: Joi.string().required(),
+    }).options({ abortEarly: false });
+  
+    const { error, value } = GutSurveyQuestionSchema.validate(req.body);
+    if (error) return ApiResponse(res, 400, "Validation failed", error);
+  
+    try {
+      const gutQuestion = await GutSurveyQuestion.findByIdAndDelete(value._id);
+      if (gutQuestion) {
+        return ApiResponse(res, 200, "Gut question removed");
+      } else {
+        return ApiResponse(res, 404, "Gut question not found");
+      }
+    } catch (err) {
+      return ApiResponse(res, 500, "Internal Server Error", err);
+    }
+  };
+
+
 const gut = {
     allGutSurveyQuestions,
     getSingleGutSurveyQuestion,
     addSurveyQuestions,
-    editSurveyQuestion
+    editSurveyQuestion,
+    removeGutSurveyQuestion
 }
 
 export default gut;
