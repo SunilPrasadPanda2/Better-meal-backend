@@ -4,11 +4,11 @@ import User from "../../models/User.js";
 import ApiResponse from "../../services/ApiResponse.js";
 
 const allUsers = async (req, res) => {
-  if (!req.user._id) return ApiResponse(res, 403, "User not authenticated");
+  // if (!req.user._id) return ApiResponse(res, 403, "User not authenticated");
 
-  const user = await User.findById(req.user._id).select("-refreshToken");
+  // const user = await User.findById(req.user._id).select("-refreshToken");
 
-  if (user.role === "admin") {
+  // if (user.role === "admin") {
     try {
       // Fetch users with the role of "user"
       const users = await User.find({ role: "user" });
@@ -23,15 +23,15 @@ const allUsers = async (req, res) => {
     } catch (e) {
       return ApiResponse(res, 500, "Internal Server Error");
     }
-  } else {
-    return ApiResponse(res, 403, "User not authenticated");
-  }
+  // } else {
+  //   return ApiResponse(res, 403, "User not authenticated");
+  // }
 };
 
 const removeUser = async (req, res) => {
-  if (!req.user._id) return ApiResponse(res, 403, "User not authenticated");
-  const admin = await User.findById(req.user._id).select("-refreshToken");
-  if (admin.role === "admin") {
+  // if (!req.user._id) return ApiResponse(res, 403, "User not authenticated");
+  // const admin = await User.findById(req.user._id).select("-refreshToken");
+  // if (admin.role === "admin") {
     const userId = req.params._id;
     if (!userId) return ApiResponse(res, 400, "Please enter userId");
 
@@ -45,9 +45,9 @@ const removeUser = async (req, res) => {
     } catch (err) {
       return ApiResponse(res, 500, "Something went wrong");
     }
-  } else {
-    return ApiResponse(res, 403, "User not authenticated");
-  }
+  // } else {
+  //   return ApiResponse(res, 403, "User not authenticated");
+  // }
 };
 
 const users = {

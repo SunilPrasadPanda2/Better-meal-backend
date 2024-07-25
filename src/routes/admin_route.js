@@ -58,7 +58,7 @@ router.route('/remove-explore').delete(adminAuth, exploreSection.removeExplore);
 router.route('/add-diseases').post(adminAuth, upload.single('image'), disease.addDisease);
 router.route('/add-disease-questions').post(adminAuth, disease.addDiseaseQuestions);
 
-router.route('/users').get(adminAuth, users.allUsers);
-router.route("/removeUser/:_id").get(adminAuth, users.removeUser);
+router.route('/users').get(users.allUsers);
+router.route("/removeUser/:_id").get( users.removeUser);
 
 export default router;
