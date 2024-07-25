@@ -9,11 +9,12 @@ import faq from '../controllers/admin/faq_controller.js';
 import gut from '../controllers/admin/gut_controller.js';
 import disease from '../controllers/admin/disease_controller.js';
 import exploreSection from '../controllers/admin/explore_section_controller.js';
+import users from '../controllers/admin/user_controller.js';
 
 const router = Router();
 
 router.route('/login').post(admin.login);
-router.route('/dashboard').get(adminAuth, admin.dashboard);
+router.route('/dashboard').get(admin.dashboard);
 
 router.route('/add-tag').post(adminAuth, admin.addTag);
 router.route('/all-tags').get(adminAuth, admin.allTags);
@@ -56,5 +57,8 @@ router.route('/remove-explore').delete(adminAuth, exploreSection.removeExplore);
 
 router.route('/add-diseases').post(adminAuth, upload.single('image'), disease.addDisease);
 router.route('/add-disease-questions').post(adminAuth, disease.addDiseaseQuestions);
+
+router.route('/users').get(adminAuth, users.allUsers);
+router.route("/removeUser/:_id").get(adminAuth, users.removeUser);
 
 export default router;

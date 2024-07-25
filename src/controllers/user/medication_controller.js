@@ -34,7 +34,26 @@ const addMedications = async (req, res) => {
         if(medication) {
             let existingMedication = user.medication;
             let newMedication = value.medication.split(',').map( medication => medication.trim());
-
+            let addMedication = newMedication.filter(med => !existingMedication.includes(med));
+            try {
+                const filter = {
+                    _id: user._id
+                }
+                const update = {
+                    $push: { medication: { $each: addMedication } }
+                } 
+                const options = {
+                    new:true
+                }
+                const userUpdate = await User.findOneAndUpdate(filter, update, options);
+                if (userUpdate) {
+                    return ApiResponse(res, 200, "Meal updated", userUpdate);
+                } else {
+                    return ApiResponse(res, 500, "Could not add the medication");
+                }
+            } catch (error) {
+                return ApiResponse(res, 500, "Internal Server Error");
+            }
         } else {
             return ApiResponse(res, 404, "User not found");
         }
@@ -73,7 +92,7 @@ const removeMedications = async (req, res) => {
         user.medication = updatedMedications;
         await user.save();
 
-        return ApiResponse(res, 200, "Medications removed successfully");
+        return ApiResponse(res, 200, "Medications removed successfully", user);
     } catch (error) {
         console.error(error);
         return ApiResponse(res, 500, "Internal Server Error");

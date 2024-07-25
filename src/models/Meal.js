@@ -4,9 +4,7 @@ const MealsSchema = new Schema(
     {
         mealName: {
             type: String,
-            required: true, 
-            allowNull: false,
-            unique: true
+            required: true,
         },
         quantity: {
             type: String,

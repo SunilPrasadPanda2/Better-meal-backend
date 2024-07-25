@@ -7,14 +7,10 @@ const UserSchema = new Schema(
     name: {
       type: String,
       required: true,
-      allowNull: false,
     },
     mobile: {
       type: String,
-      required: true,
-      allowNull: false,
-      unique: true,
-      match: [/^\d{10}$/]
+      match: [/^\d{10}$/],
     },
     email: {
       type: String,
@@ -25,7 +21,6 @@ const UserSchema = new Schema(
     password: {
       type: String,
       required: false,
-      allowNull: true,
     },
     role: {
       type: String,
@@ -132,7 +127,7 @@ UserSchema.methods.generateAuthToken = function () {
   return jwt.sign(
     { _id: this._id, email: this.email, role: this.role},
     process.env.AUTH_TOKEN,
-    { algorithm: 'HS256', expiresIn: '1h' }
+    { algorithm: 'HS256', expiresIn: '15m' }
   );
 };
 
@@ -140,7 +135,7 @@ UserSchema.methods.generateAuthRefreshToken = function () {
   return jwt.sign(
      { _id: this._id, email: this.email, role: this.role},
     process.env.REFRESH_TOKEN,
-    { algorithm: 'HS256', expiresIn: '3h'}
+    { algorithm: 'HS256', expiresIn: '7d'}
   );
 }
 
